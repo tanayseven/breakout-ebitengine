@@ -17,7 +17,7 @@
     }
 
     const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("pong.wasm"), go.importObject).then(result => {
+    WebAssembly.instantiateStreaming(fetch("breakout.wasm"), go.importObject).then(result => {
         go.run(result.instance);
     });
 </script>
