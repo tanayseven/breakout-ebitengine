@@ -70,7 +70,6 @@ func (b *Ball) PaddlePosition(p Paddle) {
 }
 
 func (b *Ball) Update(g GameState) {
-	println("Time since previous click: ", b.timeSincePreviousClick)
 	if ebiten.IsKeyPressed(ebiten.KeySpace) && b.state == Reset {
 		b.state = Moving
 	}

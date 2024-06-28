@@ -27,11 +27,16 @@ func (i *Instructions) Draw(screen *ebiten.Image) {
 		Text  string
 		Color color.Color
 	}{
-		{"Instructions", defaultColor},
+		{"Instructions: Keyboard", defaultColor},
 		{"Move paddle: [Left] and [Right]", defaultColor},
-		{"Launch the code: [Space]", defaultColor},
+		{"Launch the ball: [Space]", defaultColor},
 		{"Pause: [P]", defaultColor},
 		{"Back to menu from here: [Esc]", defaultColor},
+		{"", defaultColor},
+		{"Instructions: Mouse/Touch", defaultColor},
+		{"Move paddle: Side [Click]/[Tap]", defaultColor},
+		{"Launch the ball: Quick [Click]/[Tap]", defaultColor},
+		{"Back", SelectColor},
 	}
 
 	initialY := screenHeight/2 - len(texts)*spacing/2
