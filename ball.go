@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
 	"math/rand"
@@ -11,18 +12,23 @@ import (
 type BallState string
 
 const (
+	initialTimeSincePreviousClick = 10
+)
+
+const (
 	Moving BallState = "moving"
 	Reset  BallState = "reset"
 )
 
 type Ball struct {
-	speed          int
-	x              int
-	y              int
-	deltaX         int
-	deltaY         int
-	remainingBalls int
-	state          BallState
+	speed                  int
+	x                      int
+	y                      int
+	deltaX                 int
+	deltaY                 int
+	remainingBalls         int
+	state                  BallState
+	timeSincePreviousClick int
 }
 
 const ballSpeedMax = 5
@@ -64,8 +70,20 @@ func (b *Ball) PaddlePosition(p Paddle) {
 }
 
 func (b *Ball) Update(g GameState) {
+	println("Time since previous click: ", b.timeSincePreviousClick)
 	if ebiten.IsKeyPressed(ebiten.KeySpace) && b.state == Reset {
 		b.state = Moving
+	}
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		if b.timeSincePreviousClick != 0 && b.state == Reset {
+			b.timeSincePreviousClick--
+		}
+	}
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		if b.timeSincePreviousClick != 0 && b.state == Reset {
+			b.state = Moving
+		}
+		b.timeSincePreviousClick = initialTimeSincePreviousClick
 	}
 	if b.state == Moving {
 		b.x += b.deltaX

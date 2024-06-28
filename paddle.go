@@ -26,24 +26,36 @@ func (p *Paddle) Update(g GameState) {
 	if g == Paused {
 		return
 	}
-	isLeftKeyPressed := false
+	moveLeft := false
 	for _, key := range p.leftKeys {
 		if ebiten.IsKeyPressed(key) {
-			isLeftKeyPressed = true
+			moveLeft = true
 			break
 		}
 	}
-	isRightKeyPressed := false
+	moveRight := false
 	for _, key := range p.rightKeys {
 		if ebiten.IsKeyPressed(key) {
-			isRightKeyPressed = true
+			moveRight = true
 			break
 		}
 	}
-	if isLeftKeyPressed && p.x > 0 {
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		x, _ := ebiten.CursorPosition()
+		centerOfPaddle := p.x + paddleWidth/2
+		moveLeft = false
+		if x < centerOfPaddle {
+			moveLeft = true
+		}
+		moveRight = false
+		if x > centerOfPaddle {
+			moveRight = true
+		}
+	}
+	if moveLeft && p.x > 0 {
 		p.x -= playerSpeed
 	}
-	if isRightKeyPressed && p.x+paddleWidth < screenWidth {
+	if moveRight && p.x+paddleWidth < screenWidth {
 		p.x += playerSpeed
 	}
 }

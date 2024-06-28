@@ -45,14 +45,10 @@ func (m *Menu) Update() error {
 	for i, t := range m.menuOptions {
 		y := initialY + i*spacing
 		m.menuOptions[i].Bounds = image.Rect(x, y-spacing, x+t.Bounds.Dx(), y+t.Bounds.Dy())
-		if t.Text == "Start Breakout" {
-			println("Bounds: ", m.menuOptions[i].Bounds.Min.X, m.menuOptions[i].Bounds.Min.Y, m.menuOptions[i].Bounds.Max.X, m.menuOptions[i].Bounds.Max.Y)
-		}
 	}
 	mouseX, mouseY = ebiten.CursorPosition()
 	if m.isMouseMoved() {
 		m.mouseX, m.mouseY = ebiten.CursorPosition()
-		println("Mouse moved to: ", mouseX, mouseY)
 		for _, t := range m.menuOptions {
 			if m.mouseX > t.Bounds.Min.X && m.mouseX < t.Bounds.Max.X && m.mouseY > t.Bounds.Min.Y && m.mouseY < t.Bounds.Max.Y {
 				m.selection = t.State
