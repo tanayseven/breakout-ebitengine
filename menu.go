@@ -5,14 +5,25 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
+	"image"
 	"image/color"
 )
 
 type MenuState string
 
+type MenuOption struct {
+	Text   string
+	Color  color.Color
+	Bounds image.Rectangle
+	State  MenuState
+}
+
 type Menu struct {
-	selection MenuState
-	retroFont font.Face
+	selection   MenuState
+	retroFont   font.Face
+	menuOptions []MenuOption
+	mouseX      int
+	mouseY      int
 }
 
 const (
@@ -21,7 +32,46 @@ const (
 	GameExit         MenuState = "Exit Game"
 )
 
+var (
+	DefaultColor = color.RGBA{R: 108, G: 122, B: 137, A: 255}
+	SelectColor  = color.RGBA{R: 255, G: 255, B: 255, A: 255}
+)
+
 func (m *Menu) Update() error {
+	x := 50
+	spacing := 40
+
+	initialY := screenHeight/2 - len(m.menuOptions)*spacing/2
+	for i, t := range m.menuOptions {
+		y := initialY + i*spacing
+		m.menuOptions[i].Bounds = image.Rect(x, y-spacing, x+t.Bounds.Dx(), y+t.Bounds.Dy())
+		if t.Text == "Start Breakout" {
+			println("Bounds: ", m.menuOptions[i].Bounds.Min.X, m.menuOptions[i].Bounds.Min.Y, m.menuOptions[i].Bounds.Max.X, m.menuOptions[i].Bounds.Max.Y)
+		}
+	}
+	mouseX, mouseY = ebiten.CursorPosition()
+	if m.isMouseMoved() {
+		m.mouseX, m.mouseY = ebiten.CursorPosition()
+		println("Mouse moved to: ", mouseX, mouseY)
+		for _, t := range m.menuOptions {
+			if m.mouseX > t.Bounds.Min.X && m.mouseX < t.Bounds.Max.X && m.mouseY > t.Bounds.Min.Y && m.mouseY < t.Bounds.Max.Y {
+				m.selection = t.State
+			}
+		}
+	}
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		for _, t := range m.menuOptions {
+			if m.mouseX > t.Bounds.Min.X && m.mouseX < t.Bounds.Max.X && m.mouseY > t.Bounds.Min.Y && m.mouseY < t.Bounds.Max.Y {
+				if t.State == GameStart {
+					gameState = Running
+				} else if t.State == GameInstructions {
+					gameState = InstructionsScreen
+				} else if t.State == GameExit {
+					gameState = ClosingScreen
+				}
+			}
+		}
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 		menu.NextSelection()
 	}
@@ -40,42 +90,35 @@ func (m *Menu) Update() error {
 	return nil
 }
 
+func (m *Menu) isMouseMoved() bool {
+	return mouseX != m.mouseX || mouseY != m.mouseY
+}
+
 func (m *Menu) Draw(screen *ebiten.Image) {
 	// draw menu items
-	screen.Fill(color.RGBA{0, 0, 0, 255})
-	defaultColor := color.RGBA{108, 122, 137, 255}
-	selectColor := color.RGBA{255, 255, 255, 255}
+	screen.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 255})
 
-	startColor := defaultColor
-	instructionsColor := defaultColor
-	quitColor := defaultColor
+	for i, _ := range m.menuOptions {
+		m.menuOptions[i].Color = DefaultColor
+	}
 
 	switch m.selection {
 	case GameStart:
-		startColor = selectColor
+		m.menuOptions[0].Color = SelectColor
 		break
 	case GameInstructions:
-		instructionsColor = selectColor
+		m.menuOptions[1].Color = SelectColor
 		break
 	case GameExit:
-		quitColor = selectColor
+		m.menuOptions[2].Color = SelectColor
 		break
 	}
 	x := 50
 	spacing := 40
 
-	texts := []struct {
-		Text  string
-		Color color.Color
-	}{
-		{"Start Breakout", startColor},
-		{"Instructions", instructionsColor},
-		{"Quit", quitColor},
-	}
+	initialY := screenHeight/2 - len(m.menuOptions)*spacing/2
 
-	initialY := screenHeight/2 - len(texts)*spacing/2
-
-	for i, t := range texts {
+	for i, t := range m.menuOptions {
 		y := initialY + i*spacing
 		text.Draw(screen, t.Text, m.retroFont, x, y, t.Color)
 	}
@@ -113,5 +156,11 @@ var (
 	menu = &Menu{
 		selection: GameStart,
 		retroFont: LoadFont(),
+		menuOptions: []MenuOption{
+			{Text: "Start Breakout", Color: DefaultColor, Bounds: text.BoundString(LoadFont(), "Start Breakout"), State: GameStart},
+			{Text: "Instructions", Color: DefaultColor, Bounds: text.BoundString(LoadFont(), "Instructions"), State: GameInstructions},
+			{Text: "Quit", Color: DefaultColor, Bounds: text.BoundString(LoadFont(), "Quit"), State: GameExit},
+		},
 	}
+	mouseX, mouseY = ebiten.CursorPosition()
 )
