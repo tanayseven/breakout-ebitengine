@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"image/color"
+	"math"
 )
 
 type Paddle struct {
@@ -44,6 +45,9 @@ func (p *Paddle) Update(g GameState) {
 		x, _ := ebiten.CursorPosition()
 		centerOfPaddle := p.x + paddleWidth/2
 		moveLeft = false
+		if math.Abs(float64(x-centerOfPaddle)) < 3 {
+			return
+		}
 		if x < centerOfPaddle {
 			moveLeft = true
 		}

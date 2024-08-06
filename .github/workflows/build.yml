@@ -85,7 +85,7 @@ jobs:
       with:
         name: build-windows
         path: ./build/breakout-windows.exe
-        
+
   build-macos-intel:
     needs: [test-and-build]
     runs-on: macos-13
