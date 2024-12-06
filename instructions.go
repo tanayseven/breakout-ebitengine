@@ -9,17 +9,39 @@ import (
 
 type Instructions struct {
 	retroFont font.Face
+	mouseX    int
+	mouseY    int
 }
+
+var (
+	backButtonColor = DefaultColor
+)
 
 func (i *Instructions) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		gameState = MenuScreen
 	}
+	i.mouseX, i.mouseY = ebiten.CursorPosition()
+	if i.isMouseMoved() {
+		if i.mouseHoverOnBackButton() {
+			backButtonColor = SelectColor
+		} else {
+			backButtonColor = DefaultColor
+		}
+	}
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		if i.mouseHoverOnBackButton() {
+			gameState = MenuScreen
+		}
+	}
+}
+
+func (i *Instructions) isMouseMoved() bool {
+	return mouseX != i.mouseX || mouseY != i.mouseY
 }
 
 func (i *Instructions) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{0, 0, 0, 255})
-	defaultColor := color.RGBA{108, 122, 137, 255}
 	x := 50
 	spacing := 40
 
@@ -27,16 +49,16 @@ func (i *Instructions) Draw(screen *ebiten.Image) {
 		Text  string
 		Color color.Color
 	}{
-		{"Instructions: Keyboard", defaultColor},
-		{"Move paddle: [Left] and [Right]", defaultColor},
-		{"Launch the ball: [Space]", defaultColor},
-		{"Pause: [P]", defaultColor},
-		{"Back to menu from here: [Esc]", defaultColor},
-		{"", defaultColor},
-		{"Instructions: Mouse/Touch", defaultColor},
-		{"Move paddle: Side [Click]/[Tap]", defaultColor},
-		{"Launch the ball: Quick [Click]/[Tap]", defaultColor},
-		{"Back", SelectColor},
+		{"Instructions: Keyboard", DefaultColor},
+		{"Move paddle: [Left] and [Right]", DefaultColor},
+		{"Launch the ball: [Space]", DefaultColor},
+		{"Pause: [P]", DefaultColor},
+		{"Back to menu from here: [Esc]", DefaultColor},
+		{"", DefaultColor},
+		{"Instructions: Mouse/Touch", DefaultColor},
+		{"Move paddle: Side [Click]/Tap", DefaultColor},
+		{"Launch the ball: Quick [Click]/Tap", DefaultColor},
+		{"Back/[Esc]", backButtonColor},
 	}
 
 	initialY := screenHeight/2 - len(texts)*spacing/2
@@ -45,6 +67,10 @@ func (i *Instructions) Draw(screen *ebiten.Image) {
 		y := initialY + n*spacing
 		text.Draw(screen, t.Text, i.retroFont, x, y, t.Color)
 	}
+}
+
+func (i *Instructions) mouseHoverOnBackButton() bool {
+	return i.mouseX >= 50 && i.mouseX <= 50+150 && i.mouseY >= screenHeight-100 && i.mouseY <= screenHeight-50
 }
 
 var instructions = &Instructions{
