@@ -21,6 +21,7 @@ func DrawTopLeftText(screen *ebiten.Image, str string, cy int, font font.Face, c
 
 var currentDisplayedMessage = ""
 
-const gameStartMessage = "Press space to start the game"
+const gameStartMessage = "Level %d - Press space/tap to start"
 const gamePausedMessage = "Game paused, press P to continue"
 const gameOverMessage = "Game over, press space to restart"
+const gameWinMessage = "You win! Press space to continue"

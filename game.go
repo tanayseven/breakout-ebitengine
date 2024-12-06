@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"image/color"
@@ -26,6 +27,7 @@ const (
 	Paused             GameState = "paused"
 	Over               GameState = "over"
 	ClosingScreen      GameState = "blank"
+	GameWin            GameState = "win"
 )
 
 var gameState = MenuScreen
@@ -72,9 +74,23 @@ func (g *Game) Update() error {
 	if gameState == Over {
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 			gameState = MenuScreen
-			currentDisplayedMessage = gameStartMessage
+			currentDisplayedMessage = fmt.Sprintf(gameStartMessage, currentLevel+1)
 		}
 		return nil
+	}
+
+	if gameState == GameWin {
+		currentDisplayedMessage = fmt.Sprintf(gameWinMessage)
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			gameState = MenuScreen
+		}
+		return nil
+	}
+
+	if gameState == Running {
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			currentDisplayedMessage = ""
+		}
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
@@ -84,6 +100,11 @@ func (g *Game) Update() error {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyAlt) && inpututil.IsKeyJustPressed(ebiten.KeyF4) {
 		return ebiten.Termination
+	}
+
+	if currentLevel >= len(Levels) {
+		gameState = GameWin
+		return nil
 	}
 
 	paddle.Update(gameState)
@@ -122,6 +143,7 @@ func (g *Game) Update() error {
 		ball.resetLoseBall()
 		currentLevel++
 		BrickInit(currentLevel)
+		currentDisplayedMessage = fmt.Sprintf(gameStartMessage, currentLevel+1)
 	}
 
 	// Ball is lost
