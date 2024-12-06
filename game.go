@@ -29,6 +29,7 @@ const (
 )
 
 var gameState = MenuScreen
+var currentLevel = 0
 
 type Game struct {
 }
@@ -40,6 +41,10 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 type GameObjects interface {
 	Update(g GameState)
 	Draw(screen *ebiten.Image)
+}
+
+func GameInit() {
+	BrickInit(0)
 }
 
 func (g *Game) Update() error {
@@ -89,10 +94,10 @@ func (g *Game) Update() error {
 
 	// Ball collision with walls
 	if ball.y <= 0 || ball.y+ballSize >= screenHeight {
-		ball.deltaY = -ball.deltaY
+		ball.InvertBallVerticalMotion()
 	}
 	if ball.x <= 0 || ball.x+ballSize >= screenWidth {
-		ball.deltaX = -ball.deltaX
+		ball.InvertBallHorizontalMotion()
 	}
 
 	// Ball collision with paddle
@@ -100,9 +105,28 @@ func (g *Game) Update() error {
 		ball.deltaY = -ball.deltaY
 	}
 
+	// Ball collision with bricks
+	for _, brick := range bricks {
+		if brick.CollidesWithHorizontalLine(ball) {
+			ball.InvertBallHorizontalMotion()
+			brick.hit()
+		}
+		if brick.CollidesWithVerticalLine(ball) {
+			ball.InvertBallHorizontalMotion()
+			brick.hit()
+		}
+	}
+
+	// Check if all bricks are destroyed
+	if AreBricksOver() {
+		ball.resetLoseBall()
+		currentLevel++
+		BrickInit(currentLevel)
+	}
+
 	// Ball is lost
 	if ball.y+ballSize >= screenHeight {
-		ball.reset()
+		ball.resetLevelIncrement()
 		return nil
 	}
 
@@ -144,6 +168,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	paddle.Draw(screen)
 
-	// Draw ball
 	ball.Draw(screen)
+
+	for _, brick := range bricks {
+		brick.Draw(screen)
+	}
 }

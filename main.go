@@ -8,8 +8,9 @@ import (
 func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Breakout Game")
-	updatableGameObjects := []GameObjects{}
+	var updatableGameObjects []GameObjects
 	updatableGameObjects = append(updatableGameObjects, paddle)
+	GameInit()
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}

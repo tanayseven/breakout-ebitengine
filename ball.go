@@ -17,7 +17,7 @@ const (
 
 const (
 	Moving BallState = "moving"
-	Reset  BallState = "reset"
+	Reset  BallState = "resetLoseBall"
 )
 
 type Ball struct {
@@ -55,9 +55,15 @@ var (
 	}
 )
 
-func (b *Ball) reset() {
+func (b *Ball) resetLoseBall() {
 	b.state = Reset
 	b.remainingBalls--
+	b.deltaX = randInRange(-ballSpeedMax, ballSpeedMax)
+	b.deltaY = randInRange(-ballSpeedMax, ballSpeedMax)
+}
+
+func (b *Ball) resetLevelIncrement() {
+	b.state = Reset
 	b.deltaX = randInRange(-ballSpeedMax, ballSpeedMax)
 	b.deltaY = randInRange(-ballSpeedMax, ballSpeedMax)
 }
@@ -99,4 +105,12 @@ func (b *Ball) Draw(screen *ebiten.Image) {
 
 func (b *Ball) Lost() bool {
 	return ball.y+ballSize >= screenHeight
+}
+
+func (b *Ball) InvertBallVerticalMotion() {
+	b.deltaY = -b.deltaY
+}
+
+func (b *Ball) InvertBallHorizontalMotion() {
+	b.deltaX = -b.deltaX
 }
