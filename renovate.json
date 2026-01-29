@@ -1,6 +1,52 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
   "extends": [
-    "config:recommended"
-  ]
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "group:allNonMajor"
+  ],
+
+  "labels": ["dependencies", "go", "renovate"],
+
+  "timezone": "Asia/Kolkata",
+  "schedule": ["before 6am"],
+
+  "commitMessagePrefix": "chore(deps):",
+
+  "enabledManagers": ["gomod"],
+
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+
+  "rangeStrategy": "auto",
+
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Auto-merge minor updates",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true
+    },
+    {
+      "description": "Never auto-merge major updates",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "description": "Group Go toolchain updates",
+      "matchDepNames": ["go"],
+      "groupName": "Go toolchain"
+    }
+  ],
+
+  "ignoreDeps": []
 }
