@@ -145,6 +145,8 @@ jobs:
             path: ./build/breakout-macos-apple-silicon
 
   release:
+    # Publish only from main; PR runs must not replace the public release or push to itch.io.
+    if: github.event_name == 'push'
     needs: [build-linux-and-web, build-windows, build-macos-intel, build-macos-apple-silicon]
     permissions: write-all
     runs-on: ubuntu-latest
@@ -214,7 +216,7 @@ jobs:
 
       - name: Download Butler to release to Itch.io
         run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          curl -L -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
           unzip butler.zip
           chmod +x butler
           ./butler -V
